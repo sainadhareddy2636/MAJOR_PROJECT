@@ -43,13 +43,6 @@ const Index = () => {
                   Start Your Journey
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  className="border-primary text-primary hover:bg-primary/5"
-                >
-                  Watch Demo
-                </Button>
               </div>
             </div>
             <div className="relative animate-scale-in">
