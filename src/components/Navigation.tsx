@@ -39,13 +39,6 @@ const Navigation = () => {
               Asanas
             </NavLink>
             <NavLink
-              to="/session"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              activeClassName="text-primary font-medium"
-            >
-              Live Session
-            </NavLink>
-            <NavLink
               to="/progress"
               className="text-muted-foreground hover:text-foreground transition-colors"
               activeClassName="text-primary font-medium"
@@ -92,14 +85,6 @@ const Navigation = () => {
               onClick={() => setIsOpen(false)}
             >
               Asanas
-            </NavLink>
-            <NavLink
-              to="/session"
-              className="block text-muted-foreground hover:text-foreground transition-colors py-2"
-              activeClassName="text-primary font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              Live Session
             </NavLink>
             <NavLink
               to="/progress"

@@ -4,57 +4,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Clock, Target, TrendingUp, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ASANAS, DEFAULT_ASANA_ID } from "@/lib/asanas";
 
 const Asanas = () => {
   const navigate = useNavigate();
 
-  const recommendedAsanas = [
-    {
-      name: "Cat-Cow Pose",
-      sanskrit: "Marjaryasana-Bitilasana",
-      difficulty: "Beginner",
-      duration: "5-10 minutes",
-      benefits: "Relieves lower back tension, improves spinal flexibility",
-      targetArea: "Lower Back",
-      effectiveness: 95,
-    },
-    {
-      name: "Child's Pose",
-      sanskrit: "Balasana",
-      difficulty: "Beginner",
-      duration: "3-5 minutes",
-      benefits: "Stretches hips, thighs, and ankles, calms the mind",
-      targetArea: "Lower Back & Hips",
-      effectiveness: 92,
-    },
-    {
-      name: "Cobra Pose",
-      sanskrit: "Bhujangasana",
-      difficulty: "Intermediate",
-      duration: "3-5 minutes",
-      benefits: "Strengthens spine, opens chest, relieves back pain",
-      targetArea: "Upper & Lower Back",
-      effectiveness: 88,
-    },
-    {
-      name: "Downward Dog",
-      sanskrit: "Adho Mukha Svanasana",
-      difficulty: "Intermediate",
-      duration: "5-8 minutes",
-      benefits: "Stretches entire back, strengthens core and arms",
-      targetArea: "Full Spine",
-      effectiveness: 90,
-    },
-    {
-      name: "Bridge Pose",
-      sanskrit: "Setu Bandha Sarvangasana",
-      difficulty: "Intermediate",
-      duration: "5-7 minutes",
-      benefits: "Strengthens back muscles, improves posture",
-      targetArea: "Lower Back & Glutes",
-      effectiveness: 87,
-    },
-  ];
+  const recommendedAsanas = ASANAS;
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -77,10 +32,6 @@ const Asanas = () => {
         <div className="container mx-auto max-w-6xl">
           {/* Header */}
           <div className="mb-12 space-y-4 animate-fade-in">
-            <Badge className="bg-success/10 text-success border-success/20">
-              <Target className="w-3 h-3 mr-1" />
-              Recommended for Lower Back Pain
-            </Badge>
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
               Your Personalized Yoga Program
             </h1>
@@ -112,7 +63,7 @@ const Asanas = () => {
               <Card
                 key={index}
                 className="p-6 lg:p-8 bg-background border-border hover:shadow-medium transition-all hover:-translate-y-1 cursor-pointer"
-                onClick={() => navigate("/session")}
+                onClick={() => navigate(`/session?asana=${encodeURIComponent(asana.id)}`)}
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                   <div className="flex-1 space-y-3">
@@ -163,7 +114,10 @@ const Asanas = () => {
                   <Button
                     size="lg"
                     className="bg-gradient-wellness hover:opacity-90 transition-opacity lg:self-center"
-                    onClick={() => navigate("/session")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/session?asana=${encodeURIComponent(asana.id)}`);
+                    }}
                   >
                     <Play className="w-5 h-5 mr-2" />
                     Start Practice
@@ -173,27 +127,6 @@ const Asanas = () => {
             ))}
           </div>
 
-          {/* Action Footer */}
-          <Card className="mt-12 p-8 bg-accent/20 border-accent">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <h3 className="text-xl font-bold text-foreground mb-2">
-                  Ready to Begin Your Session?
-                </h3>
-                <p className="text-muted-foreground">
-                  Start with any asana and let our AI guide you through perfect form
-                </p>
-              </div>
-              <Button
-                size="lg"
-                className="bg-gradient-wellness hover:opacity-90 transition-opacity"
-                onClick={() => navigate("/session")}
-              >
-                Start Live Session
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </div>
-          </Card>
         </div>
       </div>
     </div>
