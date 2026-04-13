@@ -194,28 +194,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-background">
-        <div className="container mx-auto">
-          <div className="bg-gradient-wellness rounded-3xl p-12 text-center shadow-glow">
-            <h2 className="text-4xl font-bold text-primary-foreground mb-4">
-              Ready to Transform Your Practice?
-            </h2>
-            <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of users who have improved their yoga practice with AI-powered guidance
-            </p>
-            <Button 
-              size="lg" 
-              className="bg-background text-primary hover:bg-background/90"
-              onClick={() => navigate("/dashboard")}
-            >
-              Start Free Trial
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-border">
         <div className="container mx-auto text-center text-muted-foreground">

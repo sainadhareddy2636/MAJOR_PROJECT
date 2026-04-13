@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
+import { ASANAS } from "@/lib/asanas";
 
 type PoseStatus = "good" | "warning";
 
@@ -173,7 +174,7 @@ function getJointAngles(landmarks: Landmark[]) {
   };
 }
 
-function compareWithTrainer(user: Landmark[], trainer: Landmark[]) {
+function compareWithTrainer(user: Landmark[], trainer: Landmark[], weights?: Record<string, number>) {
   const userAngles = getJointAngles(user);
   const trainerAngles = getJointAngles(trainer);
 
@@ -203,7 +204,20 @@ function compareWithTrainer(user: Landmark[], trainer: Landmark[]) {
   if (kneeScore < 80) tips.push("Match knee bend with the trainer.");
   if (tips.length === 0) tips.push("Great match with the trainer. Maintain the pose.");
 
-  const overall = Math.round(metrics.reduce((a, m) => a + m.score, 0) / metrics.length);
+  const weightsSafe = {
+    shoulder: weights?.shoulder ?? 0.25,
+    elbow: weights?.elbow ?? 0.25,
+    hip: weights?.hip ?? 0.25,
+    knee: weights?.knee ?? 0.25,
+  };
+  const totalW = weightsSafe.shoulder + weightsSafe.elbow + weightsSafe.hip + weightsSafe.knee;
+  const overall = Math.round(
+    (shoulderScore * weightsSafe.shoulder +
+      elbowScore * weightsSafe.elbow +
+      hipScore * weightsSafe.hip +
+      kneeScore * weightsSafe.knee) /
+      (totalW || 1)
+  );
   return { overall, metrics, tips };
 }
 
@@ -226,6 +240,7 @@ export function usePoseCoach() {
   const [overall, setOverall] = useState(0);
   const [metrics, setMetrics] = useState<PoseMetric[]>([]);
   const [tips, setTips] = useState<string[]>(["Start camera to begin tracking."]);
+  const [asanaId, setAsanaId] = useState<string | null>(null);
   const [isScoringActive, setIsScoringActive] = useState(false);
   const scoringActiveRef = useRef(false);
   const lastProcessedAtRef = useRef<number>(0);
@@ -337,9 +352,11 @@ export function usePoseCoach() {
         }
 
         if (hasUser && hasTrainer) {
+          const activeAsana = ASANAS.find((a) => a.id === asanaId);
           const ev = compareWithTrainer(
             userLandmarks as Landmark[],
-            trainerLandmarks as Landmark[]
+            trainerLandmarks as Landmark[],
+            activeAsana?.scoringWeights
           );
           usedTrainerComparisonRef.current = true;
           setOverall(ev.overall);
@@ -380,7 +397,7 @@ export function usePoseCoach() {
     };
 
     rafRef.current = requestAnimationFrame(run);
-  }, [loadUserModel, loadTrainerModel]);
+  }, [loadUserModel, loadTrainerModel, asanaId]);
 
   const startCamera = useCallback(async () => {
     const video = videoRef.current;
@@ -469,6 +486,10 @@ export function usePoseCoach() {
     trainerVideoRef.current = el;
   }, []);
 
+  const setActiveAsana = useCallback((id: string) => {
+    setAsanaId(id);
+  }, []);
+
   const resetSession = useCallback(() => {
     framesRef.current = [];
     startAtRef.current = Date.now();
@@ -502,6 +523,7 @@ export function usePoseCoach() {
       stopCamera,
       setScoringActive,
       setTrainerVideoElement,
+      setActiveAsana,
       resetSession,
       buildReport,
     }),
@@ -517,6 +539,7 @@ export function usePoseCoach() {
       stopCamera,
       setScoringActive,
       setTrainerVideoElement,
+      setActiveAsana,
       resetSession,
       buildReport,
     ]

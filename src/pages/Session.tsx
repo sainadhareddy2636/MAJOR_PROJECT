@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, TrendingUp, Camera, CameraOff, Download } from "lucide-react";
+import { CheckCircle2, AlertCircle, TrendingUp, Camera, CameraOff, Download, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -31,20 +31,47 @@ const Session = () => {
     stopCamera,
     setScoringActive,
     setTrainerVideoElement,
+    setActiveAsana,
     resetSession,
     buildReport,
   } = usePoseCoach();
   const [trainerReady, setTrainerReady] = useState(false);
   const [trainerPlaying, setTrainerPlaying] = useState(false);
   const [trainerError, setTrainerError] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const lastSpokenRef = useRef<{ tip: string; at: number }>({ tip: "", at: 0 });
 
   useEffect(() => {
     setTrainerVideoElement(trainerVideoRef.current);
   }, [setTrainerVideoElement]);
 
   useEffect(() => {
+    setActiveAsana(selectedAsana.id);
+  }, [selectedAsana.id, setActiveAsana]);
+
+  useEffect(() => {
     setScoringActive(isCameraOn && trainerPlaying && trainerReady && !trainerError);
   }, [isCameraOn, trainerPlaying, trainerReady, trainerError, setScoringActive]);
+
+  useEffect(() => {
+    if (!audioEnabled || !isScoringActive || tips.length === 0) return;
+    if (!("speechSynthesis" in window)) return;
+
+    const tip = tips[0];
+    const now = Date.now();
+    const last = lastSpokenRef.current;
+    const cooldownMs = 2500;
+
+    if (tip === last.tip && now - last.at < cooldownMs) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(tip);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.lang = "en-US";
+    window.speechSynthesis.speak(utterance);
+    lastSpokenRef.current = { tip, at: now };
+  }, [audioEnabled, isScoringActive, tips]);
 
   const handleStart = async () => {
     try {
@@ -60,6 +87,9 @@ const Session = () => {
   };
 
   const handleResetSession = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     if (trainerVideoRef.current) {
       trainerVideoRef.current.pause();
       trainerVideoRef.current.currentTime = 0;
@@ -84,6 +114,9 @@ const Session = () => {
     localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 50)));
 
     stopCamera();
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     if (trainerVideoRef.current) {
       trainerVideoRef.current.pause();
       trainerVideoRef.current.currentTime = 0;
@@ -184,6 +217,24 @@ const Session = () => {
 
                   <Button variant="outline" onClick={handleResetSession}>
                     Reset Session
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setAudioEnabled((v) => !v)}
+                    title={audioEnabled ? "Disable audio feedback" : "Enable audio feedback"}
+                  >
+                    {audioEnabled ? (
+                      <>
+                        <Volume2 className="w-4 h-4 mr-2" />
+                        Audio On
+                      </>
+                    ) : (
+                      <>
+                        <VolumeX className="w-4 h-4 mr-2" />
+                        Audio Off
+                      </>
+                    )}
                   </Button>
 
                   <Button variant="destructive" onClick={handleEndSession}>

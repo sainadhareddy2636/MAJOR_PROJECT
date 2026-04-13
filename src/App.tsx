@@ -9,6 +9,8 @@ import Asanas from "./pages/Asanas";
 import Session from "./pages/Session";
 import Progress from "./pages/Progress";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/asanas" element={<Asanas />} />
           <Route path="/session" element={<Session />} />

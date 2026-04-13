@@ -4,16 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Sparkles, AlertCircle } from "lucide-react";
+import { ArrowRight, Sparkles, AlertCircle, Play } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { recommendAsanas, Recommendation } from "@/lib/recommender";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [concern, setConcern] = useState("");
   const [details, setDetails] = useState("");
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [hasResults, setHasResults] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,15 +29,13 @@ const Dashboard = () => {
       return;
     }
     
+    const results = recommendAsanas(concern, details, 3);
+    setRecommendations(results);
+    setHasResults(true);
     toast({
-      title: "Analyzing your concern...",
-      description: "Our AI is finding the perfect asanas for you",
+      title: "Recommendations ready",
+      description: "Select an asana to begin your guided session",
     });
-    
-    // Simulate navigation to asanas page
-    setTimeout(() => {
-      navigate("/asanas");
-    }, 1500);
   };
 
   const quickConcerns = [
@@ -106,6 +107,53 @@ const Dashboard = () => {
             </form>
           </Card>
 
+          {hasResults && (
+            <div className="mb-12 space-y-6">
+              <div className="flex items-center space-x-3">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h2 className="text-2xl font-bold text-foreground">
+                  Recommended Asanas
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Research-informed suggestions based on published studies.
+              </p>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-4">
+                {recommendations.map((rec) => (
+                  <Card
+                    key={rec.asana.id}
+                    className="p-6 bg-background border-border hover:shadow-medium transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-foreground mb-1">
+                          {rec.asana.name}
+                        </h3>
+                        <p className="text-muted-foreground italic">{rec.asana.sanskrit}</p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Target: {rec.asana.targetArea} • {rec.asana.duration}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {rec.asana.benefits}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="bg-gradient-wellness hover:opacity-90 transition-opacity"
+                        onClick={() => navigate(`/session?asana=${encodeURIComponent(rec.asana.id)}`)}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Start
+                      </Button>
+                    </div>
+
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Quick Concerns */}
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
@@ -122,6 +170,8 @@ const Dashboard = () => {
                   className="p-6 cursor-pointer hover:shadow-medium transition-all hover:-translate-y-1 bg-background border-border"
                   onClick={() => {
                     setConcern(item.title);
+                    setDetails("");
+                    setHasResults(false);
                     toast({
                       title: "Concern selected",
                       description: `Working on: ${item.title}`,

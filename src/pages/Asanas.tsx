@@ -2,7 +2,7 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Clock, Target, TrendingUp, Play } from "lucide-react";
+import { ArrowRight, Clock, Target, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ASANAS, DEFAULT_ASANA_ID } from "@/lib/asanas";
 
@@ -33,27 +33,26 @@ const Asanas = () => {
           {/* Header */}
           <div className="mb-12 space-y-4 animate-fade-in">
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
-              Your Personalized Yoga Program
+              Yoga Asanas Library
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl">
-              Based on your concern, we've selected these asanas to provide targeted relief and healing. 
-              Start with beginner poses and progress at your own pace.
+              Explore the full set of poses available in PosePerfect. Select any asana to start a guided session.
             </p>
           </div>
 
           {/* Quick Stats */}
           <div className="grid sm:grid-cols-3 gap-4 mb-12 animate-scale-in">
             <Card className="p-6 bg-gradient-card border-none shadow-soft">
-              <div className="text-3xl font-bold text-primary mb-1">5</div>
-              <div className="text-sm text-muted-foreground">Recommended Asanas</div>
+              <div className="text-3xl font-bold text-primary mb-1">{recommendedAsanas.length}</div>
+              <div className="text-sm text-muted-foreground">Total Asanas</div>
             </Card>
             <Card className="p-6 bg-gradient-card border-none shadow-soft">
-              <div className="text-3xl font-bold text-primary mb-1">25-40</div>
-              <div className="text-sm text-muted-foreground">Minutes per Day</div>
+              <div className="text-3xl font-bold text-primary mb-1">3-10</div>
+              <div className="text-sm text-muted-foreground">Typical Duration (min)</div>
             </Card>
             <Card className="p-6 bg-gradient-card border-none shadow-soft">
-              <div className="text-3xl font-bold text-primary mb-1">90%</div>
-              <div className="text-sm text-muted-foreground">Success Rate</div>
+              <div className="text-3xl font-bold text-primary mb-1">Beginner-Intermediate</div>
+              <div className="text-sm text-muted-foreground">Difficulty Range</div>
             </Card>
           </div>
 
@@ -90,25 +89,8 @@ const Asanas = () => {
                         <Target className="w-4 h-4 mr-2" />
                         {asana.targetArea}
                       </div>
-                      <div className="flex items-center text-success">
-                        <TrendingUp className="w-4 h-4 mr-2" />
-                        {asana.effectiveness}% Effective
-                      </div>
                     </div>
 
-                    {/* Effectiveness Bar */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Effectiveness</span>
-                        <span>{asana.effectiveness}%</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-wellness transition-all duration-500"
-                          style={{ width: `${asana.effectiveness}%` }}
-                        />
-                      </div>
-                    </div>
                   </div>
 
                   <Button

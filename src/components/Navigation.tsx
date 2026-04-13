@@ -1,10 +1,24 @@
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getSessionEmail, logoutUser } from "@/lib/auth";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSessionEmail(getSessionEmail());
+  }, []);
+
+  const handleLogout = () => {
+    logoutUser();
+    setSessionEmail(null);
+    navigate("/");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -29,7 +43,7 @@ const Navigation = () => {
               className="text-muted-foreground hover:text-foreground transition-colors"
               activeClassName="text-primary font-medium"
             >
-              Dashboard
+              Recommendations
             </NavLink>
             <NavLink
               to="/asanas"
@@ -45,9 +59,22 @@ const Navigation = () => {
             >
               Progress
             </NavLink>
-            <Button className="bg-gradient-wellness hover:opacity-90 transition-opacity">
-              Get Started
-            </Button>
+            {sessionEmail ? (
+              <Button
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/10"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button
+                className="bg-gradient-wellness hover:opacity-90 transition-opacity"
+                onClick={() => navigate("/register")}
+              >
+                Get Started
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -76,7 +103,7 @@ const Navigation = () => {
               activeClassName="text-primary font-medium"
               onClick={() => setIsOpen(false)}
             >
-              Dashboard
+              Recommendations
             </NavLink>
             <NavLink
               to="/asanas"
@@ -94,9 +121,28 @@ const Navigation = () => {
             >
               Progress
             </NavLink>
-            <Button className="w-full bg-gradient-wellness hover:opacity-90 transition-opacity">
-              Get Started
-            </Button>
+            {sessionEmail ? (
+              <Button
+                variant="outline"
+                className="w-full border-primary text-primary hover:bg-primary/10"
+                onClick={() => {
+                  setIsOpen(false);
+                  handleLogout();
+                }}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button
+                className="w-full bg-gradient-wellness hover:opacity-90 transition-opacity"
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate("/register");
+                }}
+              >
+                Get Started
+              </Button>
+            )}
           </div>
         )}
       </div>
