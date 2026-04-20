@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSessionEmail, logoutUser } from "@/lib/auth";
+import { getSessionEmail, logoutUser, syncSession } from "@/lib/auth";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,10 +12,20 @@ const Navigation = () => {
 
   useEffect(() => {
     setSessionEmail(getSessionEmail());
+    void syncSession().then((email) => setSessionEmail(email));
+
+    const handleAuthChanged = () => {
+      setSessionEmail(getSessionEmail());
+    };
+
+    window.addEventListener("poseperfect:auth-changed", handleAuthChanged);
+    return () => {
+      window.removeEventListener("poseperfect:auth-changed", handleAuthChanged);
+    };
   }, []);
 
-  const handleLogout = () => {
-    logoutUser();
+  const handleLogout = async () => {
+    await logoutUser();
     setSessionEmail(null);
     navigate("/");
   };
@@ -63,7 +73,7 @@ const Navigation = () => {
               <Button
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary/10"
-                onClick={handleLogout}
+                onClick={() => void handleLogout()}
               >
                 Logout
               </Button>
@@ -127,7 +137,7 @@ const Navigation = () => {
                 className="w-full border-primary text-primary hover:bg-primary/10"
                 onClick={() => {
                   setIsOpen(false);
-                  handleLogout();
+                  void handleLogout();
                 }}
               >
                 Logout

@@ -6,18 +6,21 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { registerUser, validatePassword } from "@/lib/auth";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Register = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const redirectTo = (location.state as { from?: string } | null)?.from || "/dashboard";
 
   const rules = validatePassword(password);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim() || !confirm.trim()) {
       toast({
@@ -44,7 +47,10 @@ const Register = () => {
       return;
     }
 
-    const result = registerUser(email.trim(), password);
+    setIsSubmitting(true);
+    const result = await registerUser(email.trim(), password);
+    setIsSubmitting(false);
+
     if (!result.ok) {
       toast({
         title: "Registration failed",
@@ -58,7 +64,7 @@ const Register = () => {
       title: "Account created",
       description: "Welcome! Redirecting to recommendations...",
     });
-    setTimeout(() => navigate("/dashboard"), 600);
+    setTimeout(() => navigate(redirectTo), 600);
   };
 
   return (
@@ -112,8 +118,12 @@ const Register = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-wellness hover:opacity-90">
-                Create Account
+              <Button
+                type="submit"
+                className="w-full bg-gradient-wellness hover:opacity-90"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 

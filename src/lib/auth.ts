@@ -1,24 +1,27 @@
-type StoredUser = {
+import { apiRequest } from "@/lib/api";
+
+type SessionUser = {
   email: string;
-  password: string;
 };
 
-const USERS_KEY = "poseperfect:users";
+type AuthResponse = {
+  user: SessionUser;
+};
+
 const SESSION_KEY = "poseperfect:session";
 
-const getUsers = (): StoredUser[] => {
-  const raw = localStorage.getItem(USERS_KEY);
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as StoredUser[]) : [];
-  } catch {
-    return [];
-  }
+const notifyAuthChanged = () => {
+  window.dispatchEvent(new Event("poseperfect:auth-changed"));
 };
 
-const saveUsers = (users: StoredUser[]) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+const saveSession = (payload: AuthResponse) => {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(payload.user));
+  notifyAuthChanged();
+};
+
+const clearSession = () => {
+  localStorage.removeItem(SESSION_KEY);
+  notifyAuthChanged();
 };
 
 export const validatePassword = (password: string) => {
@@ -33,32 +36,46 @@ export const validatePassword = (password: string) => {
   };
 };
 
-export const registerUser = (email: string, password: string) => {
-  const users = getUsers();
-  const exists = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
-  if (exists) {
-    return { ok: false, message: "Email already registered. Please sign in." };
+export const registerUser = async (email: string, password: string) => {
+  try {
+    const result = await apiRequest<AuthResponse>("/api/auth/register", {
+      method: "POST",
+      body: { email, password },
+    });
+    saveSession(result);
+    return { ok: true as const };
+  } catch (error) {
+    return {
+      ok: false as const,
+      message: error instanceof Error ? error.message : "Registration failed.",
+    };
   }
-  users.push({ email, password });
-  saveUsers(users);
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ email }));
-  return { ok: true };
 };
 
-export const loginUser = (email: string, password: string) => {
-  const users = getUsers();
-  const match = users.find(
-    (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-  );
-  if (!match) {
-    return { ok: false, message: "Invalid email or password." };
+export const loginUser = async (email: string, password: string) => {
+  try {
+    const result = await apiRequest<AuthResponse>("/api/auth/login", {
+      method: "POST",
+      body: { email, password },
+    });
+    saveSession(result);
+    return { ok: true as const };
+  } catch (error) {
+    return {
+      ok: false as const,
+      message: error instanceof Error ? error.message : "Login failed.",
+    };
   }
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ email }));
-  return { ok: true };
 };
 
-export const logoutUser = () => {
-  localStorage.removeItem(SESSION_KEY);
+export const logoutUser = async () => {
+  try {
+    await apiRequest<void>("/api/auth/logout", {
+      method: "POST",
+    });
+  } finally {
+    clearSession();
+  }
 };
 
 export const getSessionEmail = (): string | null => {
@@ -68,6 +85,18 @@ export const getSessionEmail = (): string | null => {
     const parsed = JSON.parse(raw) as { email?: string };
     return parsed.email ?? null;
   } catch {
+    return null;
+  }
+};
+
+export const syncSession = async () => {
+  try {
+    const result = await apiRequest<{ user: SessionUser }>("/api/auth/me");
+    localStorage.setItem(SESSION_KEY, JSON.stringify(result.user));
+    notifyAuthChanged();
+    return result.user.email;
+  } catch {
+    clearSession();
     return null;
   }
 };

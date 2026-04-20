@@ -11,6 +11,7 @@ import Progress from "./pages/Progress";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import RequireAuth from "./components/RequireAuth";
 
 const queryClient = new QueryClient();
 
@@ -24,10 +25,38 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/asanas" element={<Asanas />} />
-          <Route path="/session" element={<Session />} />
-          <Route path="/progress" element={<Progress />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/asanas"
+            element={
+              <RequireAuth>
+                <Asanas />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/session"
+            element={
+              <RequireAuth>
+                <Session />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/progress"
+            element={
+              <RequireAuth>
+                <Progress />
+              </RequireAuth>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

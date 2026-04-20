@@ -6,15 +6,18 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { loginUser } from "@/lib/auth";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const redirectTo = (location.state as { from?: string } | null)?.from || "/dashboard";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       toast({
@@ -25,7 +28,10 @@ const Login = () => {
       return;
     }
 
-    const result = loginUser(email.trim(), password);
+    setIsSubmitting(true);
+    const result = await loginUser(email.trim(), password);
+    setIsSubmitting(false);
+
     if (!result.ok) {
       toast({
         title: "Login failed",
@@ -39,7 +45,7 @@ const Login = () => {
       title: "Login successful",
       description: "Welcome back. Redirecting to recommendations...",
     });
-    setTimeout(() => navigate("/dashboard"), 600);
+    setTimeout(() => navigate(redirectTo), 600);
   };
 
   return (
@@ -79,8 +85,12 @@ const Login = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-wellness hover:opacity-90">
-                Sign In
+              <Button
+                type="submit"
+                className="w-full bg-gradient-wellness hover:opacity-90"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
