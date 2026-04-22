@@ -9,6 +9,7 @@ import { z } from "zod";
 dotenv.config();
 
 const app = express();
+
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/poseperfect";
 const JWT_SECRET = process.env.JWT_SECRET || "replace-this-in-production";
@@ -16,7 +17,7 @@ const CLIENT_ORIGIN =
   process.env.CLIENT_ORIGIN || "https://pose-perfect-wheat.vercel.app";
 const SESSION_COOKIE_NAME = "poseperfect_session";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
-
+app.set("trust proxy", 1);
 app.use(
   cors({
     origin: "https://pose-perfect-wheat.vercel.app",
