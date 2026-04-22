@@ -12,13 +12,17 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const redirectTo = (location.state as { from?: string } | null)?.from || "/dashboard";
+
+  const redirectTo =
+    (location.state as { from?: string } | null)?.from || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!email.trim() || !password.trim()) {
       toast({
         title: "Missing details",
@@ -29,23 +33,34 @@ const Login = () => {
     }
 
     setIsSubmitting(true);
-    const result = await loginUser(email.trim(), password);
-    setIsSubmitting(false);
 
-    if (!result.ok) {
+    try {
+      const result = await loginUser(email.trim(), password);
+
+      if (result.ok) {
+        toast({
+          title: "Login successful",
+          description: "Welcome back!",
+        });
+
+        // Redirect immediately
+        navigate(redirectTo);
+      } else {
+        toast({
+          title: "Login failed",
+          description: result.message ?? "Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Login failed",
-        description: result.message ?? "Please try again.",
+        title: "Login error",
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
-      return;
     }
 
-    toast({
-      title: "Login successful",
-      description: "Welcome back. Redirecting to recommendations...",
-    });
-    setTimeout(() => navigate(redirectTo), 600);
+    setIsSubmitting(false);
   };
 
   return (
