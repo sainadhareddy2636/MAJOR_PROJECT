@@ -6,19 +6,14 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { loginUser } from "@/lib/auth";
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const redirectTo =
-    (location.state as { from?: string } | null)?.from || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +38,8 @@ const Login = () => {
           description: "Welcome back!",
         });
 
-        // Redirect immediately
-        navigate(redirectTo);
+        // Force redirect to dashboard
+        window.location.href = "/dashboard";
       } else {
         toast({
           title: "Login failed",
