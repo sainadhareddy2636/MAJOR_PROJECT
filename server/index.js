@@ -21,7 +21,8 @@ app.use(
   cors({
     origin: "https://pose-perfect-wheat.vercel.app",
     credentials: true,
-  }),
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
 );
 app.use(express.json({ limit: "1mb" }));
 
@@ -167,6 +168,7 @@ const cookieOptions = {
   httpOnly: true,
   sameSite: "none",
   secure: true,
+  path:"/",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
