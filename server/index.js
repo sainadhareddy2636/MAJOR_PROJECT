@@ -290,9 +290,9 @@ app.post("/api/auth/login", async (req, res) => {
     }
 
     const token = createToken(user);
-    setSessionCookie(res, token);
 
     return res.json({
+      token,
       user: { email: user.email },
     });
   } catch (error) {
@@ -300,7 +300,6 @@ app.post("/api/auth/login", async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 });
-
 app.post("/api/auth/logout", (_req, res) => {
   clearSessionCookie(res);
   return res.status(204).send();

@@ -9,9 +9,9 @@ export const apiRequest = async <T>(path: string, options: ApiOptions = {}): Pro
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? "GET",
     headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+},
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
