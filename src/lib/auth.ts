@@ -26,16 +26,13 @@ const clearSession = () => {
 
 export const loginUser = async (email: string, password: string) => {
   try {
-    const result = await apiRequest<AuthResponse>("/api/auth/login", {
+    const result = await apiRequest<{ user: { email: string } }>("/api/auth/login", {
       method: "POST",
       body: { email, password },
     });
 
-    if (!result || !result.user) {
-      throw new Error("Invalid login response");
-    }
-
-    saveSession(result.user);
+    // store session locally
+    localStorage.setItem("poseperfect:session", JSON.stringify(result.user));
 
     return { ok: true as const };
   } catch (error) {

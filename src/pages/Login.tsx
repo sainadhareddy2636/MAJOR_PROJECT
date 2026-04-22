@@ -33,20 +33,19 @@ const Login = () => {
       const result = await loginUser(email.trim(), password);
 
       if (result.ok) {
-        toast({
-          title: "Login successful",
-          description: "Welcome back!",
-        });
+  toast({
+    title: "Login successful",
+    description: "Welcome back!",
+  });
 
-        // Force redirect to dashboard
-        window.location.href = "/dashboard";
-      } else {
-        toast({
-          title: "Login failed",
-          description: result.message ?? "Please try again.",
-          variant: "destructive",
-        });
-      }
+  window.location.href = "/";
+} else {
+  toast({
+    title: "Login failed",
+    description: result.message ?? "Please try again.",
+    variant: "destructive",
+  });
+}
     } catch (error) {
       toast({
         title: "Login error",
