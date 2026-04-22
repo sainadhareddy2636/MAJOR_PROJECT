@@ -12,13 +12,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/poseperfect";
 const JWT_SECRET = process.env.JWT_SECRET || "replace-this-in-production";
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:8080";
+const CLIENT_ORIGIN =
+  process.env.CLIENT_ORIGIN || "https://pose-perfect-wheat.vercel.app";
 const SESSION_COOKIE_NAME = "poseperfect_session";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 app.use(
   cors({
-    origin: CLIENT_ORIGIN,
+    origin: "https://pose-perfect-wheat.vercel.app",
     credentials: true,
   }),
 );
@@ -164,8 +165,8 @@ const createToken = (user) =>
 
 const cookieOptions = {
   httpOnly: true,
-  sameSite: "lax",
-  secure: IS_PRODUCTION,
+  sameSite: "none",
+  secure: true,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
